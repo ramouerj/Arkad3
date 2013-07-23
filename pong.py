@@ -8,7 +8,6 @@ from pygame.locals import *
 import updateMenu
 
 class Pong:
-	# Coisas a fazer: sockets, bolinha, colisão, menu options	
 	screen, resolucao, resoX, resoY = None, None, None, None
 
 	def __init__(self):
