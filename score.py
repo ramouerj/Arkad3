@@ -3,7 +3,7 @@
 
 import sqlite3
 
-class Score:
+class Score :
 
 	conexao = sqlite3.connect("data/score.db")
 	cursor = conexao.cursor()
@@ -21,7 +21,7 @@ class Score:
 		return self.cursor.fetchall()
 
 	def __init__(self):
-		self.cursor.execute('''CREATE TABLE IF NOT EXISTS score ( 
+		self.cursor.execute('''CREATE TABLE IF NOT EXISTS score (
 		    id    INTEGER PRIMARY KEY ASC AUTOINCREMENT
                   NOT NULL
                   UNIQUE,
