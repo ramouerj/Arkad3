@@ -1,5 +1,6 @@
 #!/usr/bin python
 
+import os
 import pygame
 from pygame.locals import *
 
@@ -7,9 +8,11 @@ import Menu
 
 class Pong:
 	def __init__(self):
+		os.environ['SDL_VIDEO_WINDOW_POS'] = 'center'
 		pygame.init()
-
+		
 		resolution = pygame.display.list_modes(32)
+		
 		screen = pygame.display.set_mode(resolution[0], pygame.FULLSCREEN)
 		resolution = (resolution[0][0], resolution[0][1])
 
@@ -19,3 +22,4 @@ class Pong:
 
 if __name__ == "__main__":
 	Pong()
+

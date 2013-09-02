@@ -3,7 +3,7 @@
 import pygame
 from pygame.locals import *
 
-import Game
+import Game, DetectPlayers
 
 class Update:
 	def __init__(self, screen, resolution_x, resolution_y):
@@ -21,20 +21,24 @@ class Update:
 			screen.fill((0, 0, 0))
 # Events
 			keys = pygame.key.get_pressed()
-			pygame.time.delay(90)
-			if keys[K_DOWN] and (colors[3] != green): 
+			pygame.time.delay(35)
+			if keys[K_DOWN] and (colors[3] != green):
 				colors[colors.index(green) + 1] = green
 				colors[colors.index(green)] = white
 			elif keys[K_UP] and (colors[0] != green):
 				colors[colors.index(green) - 1] = green
 				colors[colors.index(green) + 1] = white
 			elif keys[K_RETURN]:
-				if colors[0] == green: Game.Update(screen, resolution_x, resolution_y); break;
+				if colors[0] == green:
+					Game.Update(screen, resolution_x, resolution_y)
+					break
 				if colors[1] == green: pass
 				if colors[2] == green: pass
 				if colors[3] == green: exit()
 			for event in pygame.event.get():
-				if event.type == QUIT: break
+				if event.type == QUIT:
+					pygame.quit()
+					exit()
 # Draw Font
 			for index in range(0, 4):
 				option = font.render(options[index], 1, colors[index])
