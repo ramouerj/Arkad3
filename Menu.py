@@ -3,7 +3,7 @@
 import pygame
 from pygame.locals import *
 
-import Game, DetectPlayers
+import Game, Score, DetectPlayers
 
 class Update:
 	def __init__(self, screen, resolution_x, resolution_y):
@@ -19,7 +19,7 @@ class Update:
 		while True:
 			pygame.time.Clock().tick(35)
 			screen.fill((0, 0, 0))
-# Events
+
 			keys = pygame.key.get_pressed()
 			pygame.time.delay(35)
 			if keys[K_DOWN] and (colors[3] != green):
@@ -32,19 +32,22 @@ class Update:
 				if colors[0] == green:
 					Game.Update(screen, resolution_x, resolution_y)
 					break
-				if colors[1] == green: pass
+				if colors[1] == green:
+					Score.ViewUpdate(screen, resolution_x, resolution_y)
+					break
 				if colors[2] == green: pass
 				if colors[3] == green: exit()
+
 			for event in pygame.event.get():
 				if event.type == QUIT:
 					pygame.quit()
 					exit()
-# Draw Font
+
 			for index in range(0, 4):
 				option = font.render(options[index], 1, colors[index])
 				screen.blit(option, (resolution_x/2 - font.size(options[index])[0]/2,
 					resolution_y/2 - font.size(options[index])[1]/2 + index*40 - 60))
-# Draw Logo
+
 			screen.blit(logoIeee, logoIeeeRect)
 
 			pygame.display.flip()

@@ -9,7 +9,7 @@ import Menu, Communication
 
 class Update:
 
-	Com = Communication.Update()
+	Com = Communication.Update('player1')
 
 	def __init__(self, screen, resolution_x, resolution_y):
 		WHITE, RED = (255, 255, 255), (255, 0, 0)
@@ -25,39 +25,52 @@ class Update:
 
 		circle_width = resolution_x/70
 		circle_x, circle_y = resolution_x/2 - circle_width, resolution_y/2 - circle_width
-		speed_x, speed_y, speed_circ = 500., 500., 500.
+		speed_x, speed_y, speed_circ = 500., 500., 500
 
 		self.Com.isAlive = True
 		self.Com.start()
 		
-		while True:
+		while True and self.Com.isAlive:
 			time_passed = pygame.time.Clock().tick(35)
 			time_sec = time_passed / 1000.
 			screen.fill((0, 0, 0))
-
-			player_rect[1].y = pygame.mouse.get_pos()[1]
 
 			keys = pygame.key.get_pressed()
 			if keys[K_ESCAPE]:
 				self.Com.isAlive = False
 				Menu.Update(screen, resolution_x, resolution_y)
 				break
-			
-			player_rect[0].y -= self.Com.coordinates[1]/1.5
-			if not player_rect[0].y >= 11 or not player_rect[0].y <= resolution_y - player_rect[0].height - 5: 
-				player_rect[0].y = player_rect[0].y				
-			
+
 			for event in pygame.event.get(): 
 				if event.type == QUIT:
 					break
 
+			player_rect[0].y += int(self.Com.coordinates[1]/1.5)
+
 			circle_x += speed_x * time_sec
 			circle_y += speed_y * time_sec
+			ia_speed = speed_circ * time_sec
 
 			if circle_y <= circle_width/2 + 10.:
 				speed_y = -speed_y
 			if circle_y >= resolution_y - circle_width/2 - 10.:
 				speed_y = -speed_y
+			
+			for player in player_rect:
+				if player.y <= 11.: 
+					player.y = 10.
+				if player.y >= resolution_y - player.height - 5.:
+					player.y = resolution_y - player.height - 5.
+
+			# IA CPU
+			if circle_x >= resolution_x/2:
+				if not player_rect[1].y == circle_y + circle_width:
+					if player_rect[1].y + player_rect[1].height < circle_y + circle_width:
+						player_rect[1].y += ia_speed + 7
+					if player_rect[1].y > circle_y - player_rect[1].height:
+						player_rect[1].y -= ia_speed - 7
+				else:
+					player_rect[1] == circle_y + circle_width
 
 			if circle_x <= player_rect[0].x + circle_width/2 + 10:
 				if circle_y >= player_rect[0].y and circle_y <= player_rect[0].y + player_rect[0].height:
