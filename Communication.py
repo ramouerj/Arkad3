@@ -57,6 +57,7 @@ class Update(Thread):
 	def run(self):
 		while self.isAlive and self.connection.isOpen():
 			try:
+				print self.connection.readline()
 				list = self.connection.readline().split(" ")
 				list[1] = list[1].replace("\n", "").replace("\r", "")
 				self.coordinates = (int(list[0]), int(list[1]))
