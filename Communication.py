@@ -26,7 +26,6 @@ class Sync(Thread):
 
 class Update(Thread):
 	
-	connected = []
 	connection = serial.Serial()
 	isAlive = True
 	coordinates = [0, 0]
@@ -37,7 +36,7 @@ class Update(Thread):
 		self.finished = threading.Event()
 		for rootPort in list_ports.comports():
 			for port in rootPort:
-				if 'ttyUSB' in port and not port in self.connected:
+				if 'ttyUSB' in port:
 					self.connection.port = port
 					self.connection.baudrate = 9600
 					try:
@@ -57,7 +56,6 @@ class Update(Thread):
 	def run(self):
 		while self.isAlive and self.connection.isOpen():
 			try:
-				print self.connection.readline()
 				list = self.connection.readline().split(" ")
 				list[1] = list[1].replace("\n", "").replace("\r", "")
 				self.coordinates = (int(list[0]), int(list[1]))

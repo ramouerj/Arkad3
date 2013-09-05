@@ -65,18 +65,18 @@ class Update:
 			# IA CPU
 			if circle_x >= resolution_x/2:
 				if not player_rect[1].y == circle_y + circle_width:
-					if player_rect[1].y + player_rect[1].height < circle_y + circle_width:
-						player_rect[1].y += ia_speed + 7
-					if player_rect[1].y > circle_y - player_rect[1].height:
-						player_rect[1].y -= ia_speed - 7
+					if player_rect[1].y + player_rect[1].height/2 < circle_y + circle_width:
+						player_rect[1].y += ia_speed
+					if player_rect[1].y > circle_y - player_rect[1].height/2:
+						player_rect[1].y -= ia_speed
 				else:
 					player_rect[1] == circle_y + circle_width
 
-			if circle_x <= player_rect[0].x + circle_width/2 + 10:
-				if circle_y >= player_rect[0].y and circle_y <= player_rect[0].y + player_rect[0].height:
+			if circle_x <= int(player_rect[0].x + circle_width/2 + 10):
+				if circle_y >= int(player_rect[0].y) and circle_y <= int(player_rect[0].y + player_rect[0].height):
 					speed_x = -speed_x
-			if circle_x >= player_rect[1].x + circle_width/2 - 10:
-					if circle_y >= player_rect[1].y and circle_y <= player_rect[1].y + player_rect[1].height:
+			if circle_x >= int(player_rect[1].x + circle_width/2 - 10):
+					if circle_y >= int(player_rect[1].y) and circle_y <= int(player_rect[1].y + player_rect[1].height):
 						speed_x = -speed_x
 
 			if circle_x > resolution_x:

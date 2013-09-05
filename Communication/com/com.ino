@@ -21,5 +21,5 @@ void loop()
  Serial.print(" ");
  Serial.println(y);
  
- delay(35); //make it readable
+ delay(50); //make it readable
 }
