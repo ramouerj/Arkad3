@@ -9,7 +9,7 @@ import Menu, Communication
 
 class Update:
 
-	Com = Communication.Update('player1')
+	Com = Communication.Update()
 
 	def __init__(self, screen, resolution_x, resolution_y):
 		WHITE, RED = (255, 255, 255), (255, 0, 0)
@@ -25,10 +25,12 @@ class Update:
 
 		circle_width = resolution_x/70
 		circle_x, circle_y = resolution_x/2 - circle_width, resolution_y/2 - circle_width
-		speed_x, speed_y, speed_circ = 500., 500., 500
+		speed_x, speed_y, speed_circ = resolution_y/2, resolution_y/2, resolution_y/2
 
 		self.Com.isAlive = True
 		self.Com.start()
+
+		time.sleep(5)
 		
 		while True and self.Com.isAlive:
 			time_passed = pygame.time.Clock().tick(35)
@@ -45,15 +47,19 @@ class Update:
 				if event.type == QUIT:
 					break
 
-			player_rect[0].y += int(self.Com.coordinates[1]/1.5)
+			if int(self.Com.players) == 1:
+				player_rect[0].y += self.Com.mv_p1y/1.5
+			else:
+				player_rect[0].y += self.Com.mv_p1y/1.5
+				player_rect[1].y += self.Com.mv_p2y/1.5
 
 			circle_x += speed_x * time_sec
 			circle_y += speed_y * time_sec
 			ia_speed = speed_circ * time_sec
 
-			if circle_y <= circle_width/2 + 10.:
+			if circle_y <= circle_width + 10.:
 				speed_y = -speed_y
-			if circle_y >= resolution_y - circle_width/2 - 10.:
+			if circle_y >= resolution_y - circle_width - 10.:
 				speed_y = -speed_y
 			
 			for player in player_rect:
@@ -62,21 +68,21 @@ class Update:
 				if player.y >= resolution_y - player.height - 5.:
 					player.y = resolution_y - player.height - 5.
 
-			# IA CPU
-			if circle_x >= resolution_x/2:
-				if not player_rect[1].y == circle_y + circle_width:
-					if player_rect[1].y + player_rect[1].height/2 < circle_y + circle_width:
-						player_rect[1].y += ia_speed
-					if player_rect[1].y > circle_y - player_rect[1].height/2:
-						player_rect[1].y -= ia_speed
-				else:
-					player_rect[1] == circle_y + circle_width
+			if int(self.Com.players) == 1:
+				if circle_x >= resolution_x/2:
+					if not player_rect[1].y == circle_y + circle_width:
+						if player_rect[1].y + player_rect[1].height/2 < circle_y + circle_width:
+							player_rect[1].y += ia_speed
+						if player_rect[1].y > circle_y - player_rect[1].height/2:
+							player_rect[1].y -= ia_speed
+					else:
+						player_rect[1] == circle_y + circle_width
 
-			if circle_x <= int(player_rect[0].x + circle_width/2 + 10):
-				if circle_y >= int(player_rect[0].y) and circle_y <= int(player_rect[0].y + player_rect[0].height):
+			if circle_x <= player_rect[0].x + circle_width + 10:
+				if circle_y >= player_rect[0].y and circle_y <= player_rect[0].y + player_rect[0].height:
 					speed_x = -speed_x
-			if circle_x >= int(player_rect[1].x + circle_width/2 - 10):
-					if circle_y >= int(player_rect[1].y) and circle_y <= int(player_rect[1].y + player_rect[1].height):
+			if circle_x >= player_rect[1].x - circle_width + 10:
+					if circle_y >= player_rect[1].y and circle_y <= player_rect[1].y + player_rect[1].height:
 						speed_x = -speed_x
 
 			if circle_x > resolution_x:

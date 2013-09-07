@@ -12,53 +12,77 @@ GND  ----> I/O POWER GND
 VCC  ----> I/O 3V3
 '''
 
+import serial
 import time
+from serial import SerialException
+import serial.tools.list_ports as list_ports
+
 import threading
 from threading import Thread
 
-import serial
-import serial.tools.list_ports as list_ports
-from serial import SerialException
+event = threading.Event()
+event_player_1 = threading.Event()
+event_player_2 = threading.Event()
 
-class Sync(Thread):
+class CPU(Thread):
+
 	def __init__(self):
-		pass
+		super(CPU, self).__init__()
 
-class Update(Thread):
-	
-	connection = serial.Serial()
-	isAlive = True
-	coordinates = [0, 0]
+	def run(self):
+		while True:
+			pass
+			# Fazer o CPU
 
+class Player(Thread):
 	def __init__(self, name):
-		Thread.__init__(self, name = name)
-		self.interval = 0
-		self.finished = threading.Event()
+		super(Player, self).__init__()
+		self.name = name
+		self.connection = serial.Serial()
+		self.connected = list()
+		self.mv_p1, self.mv_p2 = 0, 0
+		self.player1_isAlive, self.p2_isAlive = True, True
+
+	def start(self):
+		Thread.start(self)
+
+	def run(self):
+		global event, event_player1, event_player2
+
 		for rootPort in list_ports.comports():
 			for port in rootPort:
-				if 'ttyUSB' in port:
+				if 'ttyUSB' in port and not port in self.connected:
 					self.connection.port = port
 					self.connection.baudrate = 9600
 					try:
 						self.connection.open()
+						self.connected.append(port)
 					except SerialException, ex:
-						print "Could not open connection.\n%s" % str(ex)
-						exit()
+						print "Could not open connection.\n %s" % str(ex)
+						event.set()
+		# Verificar o número de jogadores
+		while True:
+			if not self.p1_isAlive:
+				event.set()
+				event_player1.wait()
+			if not self.p2_isAlive:
+				event.set()
+				event_player2.wait()
+
+
+class Monitor(Thread):
+
+	def __init__(self):
+		self.threads = list()
 
 	def start(self):
 		Thread.__init__(self)
 		Thread.start(self)
 
-	def stop(self):
-		self.finished.set()
-		self._Thread__stop()
-
 	def run(self):
-		while self.isAlive and self.connection.isOpen():
-			try:
-				list = self.connection.readline().split(" ")
-				list[1] = list[1].replace("\n", "").replace("\r", "")
-				self.coordinates = (int(list[0]), int(list[1]))
-			except:
-				pass
-		self.stop()
+		th_p1 = Player('player_1')
+		th_p2 = Player('player_2')
+
+		while True:
+			global event
+			if th_p1.

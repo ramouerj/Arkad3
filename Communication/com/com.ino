@@ -1,7 +1,8 @@
 #include <AcceleroMMA7361.h>
 
 AcceleroMMA7361 accelero;
-int x, y, z;
+int y1;
+String out;
 
 void setup()
 {
@@ -14,12 +15,12 @@ void setup()
 
 void loop()
 {
- x = accelero.getXAccel();
- y = accelero.getYAccel();
+ y1 = accelero.getYAccel();
  
- Serial.print(x);
- Serial.print(" ");
- Serial.println(y);
+ out = "2 ";
+ out.concat(y1);
  
- delay(50); //make it readable
+ Serial.println(out);
+ 
+ delay(50);
 }
