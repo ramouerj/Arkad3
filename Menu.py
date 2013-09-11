@@ -1,9 +1,10 @@
-#!/usr/bin python
+#!/usr/bin python 
 
 import pygame
 from pygame.locals import *
 
-import Game, Score, DetectPlayers
+import Score
+import Game
 
 class Update:
 	def __init__(self, screen, resolution_x, resolution_y):
@@ -41,7 +42,7 @@ class Update:
 			for event in pygame.event.get():
 				if event.type == QUIT:
 					pygame.quit()
-					exit()
+					break
 
 			for index in range(0, 4):
 				option = font.render(options[index], 1, colors[index])

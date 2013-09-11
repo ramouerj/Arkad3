@@ -1,107 +1,147 @@
 #!/usr/bin python
 
 import pygame
-from pygame.locals import *
-
 import time
-
-import Menu, Communication
+import Menu
+import Device
+from pygame.locals import *
 
 class Update:
 
-	Com = Communication.Update()
+	def run(self):
+		self.connection.start()
+		while self.connection.isAlive:
 
-	def __init__(self, screen, resolution_x, resolution_y):
-		WHITE, RED = (255, 255, 255), (255, 0, 0)
+			self.time_passed = pygame.time.Clock().tick(35)
+			self.time_sec = self.time_passed/1000.
 
-		scores = [0, 0]
-		font = pygame.font.Font("data/font.TTF", 30)
-
-		bar_rect = [pygame.Rect(0, 00, resolution_x, 10), pygame.Rect(0, resolution_y - 11, resolution_x, 11),
-						pygame.Rect(resolution_x/2, 0, 10, resolution_y)]
-
-		player_rect = [pygame.Rect(10, (3.9*resolution_y/10), resolution_x/90, resolution_y/5),
-						pygame.Rect(resolution_x - 25, (3.9*resolution_y/10), resolution_x/90, resolution_y/5)]
-
-		circle_width = resolution_x/70
-		circle_x, circle_y = resolution_x/2 - circle_width, resolution_y/2 - circle_width
-		speed_x, speed_y, speed_circ = resolution_y/2, resolution_y/2, resolution_y/2
-
-		self.Com.isAlive = True
-		self.Com.start()
-
-		time.sleep(5)
-		
-		while True and self.Com.isAlive:
-			time_passed = pygame.time.Clock().tick(35)
-			time_sec = time_passed / 1000.
-			screen.fill((0, 0, 0))
-
-			keys = pygame.key.get_pressed()
-			if keys[K_ESCAPE]:
-				self.Com.isAlive = False
-				Menu.Update(screen, resolution_x, resolution_y)
-				break
-
-			for event in pygame.event.get(): 
+			for event in pygame.event.get():
 				if event.type == QUIT:
 					break
 
-			if int(self.Com.players) == 1:
-				player_rect[0].y += self.Com.mv_p1y/1.5
+			self.screen.fill((0, 0, 0))
+
+			keys = pygame.key.get_pressed()
+			if keys[K_ESCAPE]:
+				self.connection.stop()
+				Menu.Update(self.screen, self.resolution_x, self.resolution_y)
+
+			self.draw()
+	
+	def detect_players(self):
+			count = 0
+			for i in range(0, 10):
+				if self.connection.players == 2:
+					count += 1
+			if count >= 10: return 2
+			else: return 1
+
+	def draw(self):
+		self.move_players()
+		self.move_circle()
+		self.collisions()
+
+		for bar in self.bar_rects:
+			pygame.draw.rect(self.screen, self.white, bar)
+		for player in self.player_rects:
+			pygame.draw.rect(self.screen, self.white, player)
+
+		pygame.draw.circle(self.screen, self.red, (int(self.circle_x), int(self.circle_y)), self.circle_width/2)
+
+		p1_score = self.font.render(str(self.score[0]), 1, self.white)
+		p2_score = self.font.render(str(self.score[1]), 1, self.white)
+		self.screen.blit(p1_score, (self.resolution_x/2 + self.font.size(str(self.score[0]))[0], 15))
+		self.screen.blit(p2_score, (self.resolution_x/2 - self.font.size(str(self.score[1]))[0] - 14, 15))
+
+		pygame.display.flip()
+
+	def move_circle(self):
+		self.circle_x += self.circle_speed_x * self.time_sec
+		self.circle_y += self.circle_speed_y * self.time_sec
+
+	def move_players(self):
+		if self.detect_players() == 1:
+			self.player_rects[0].y += self.connection.mv_p1/2
+			self.move_cpu()
+		else:
+			self.player_rects[0].y += self.connection.mv_p1/2
+			self.player_rects[1].y += self.connection.mv_p2/2
+
+	def move_cpu(self):
+		self.ia_speed = self.circle_speed * self.time_sec
+		if self.circle_x >= self.resolution_x/2:
+			if not self.player_rects[1].y == self.circle_y + self.circle_width:
+				if self.player_rects[1].y + self.player_rects[1].height/2 < self.circle_y + self.circle_width:
+					self.player_rects[1].y += self.ia_speed
+				if self.player_rects[1].y > self.circle_y - self.player_rects[1].height/2:
+					self.player_rects[1].y -= self.ia_speed
 			else:
-				player_rect[0].y += self.Com.mv_p1y/1.5
-				player_rect[1].y += self.Com.mv_p2y/1.5
+				self.player_rects[1].y = circle_y + circle_width	
 
-			circle_x += speed_x * time_sec
-			circle_y += speed_y * time_sec
-			ia_speed = speed_circ * time_sec
+	def collisions(self):
+# Circle
+		if self.circle_x <= self.player_rects[0].x + self.circle_width + 10:
+			if self.circle_y >= self.player_rects[0].y and self.circle_y <= self.player_rects[0].y + self.player_rects[0].height:
+				self.circle_speed_x = -self.circle_speed_x
+		if self.circle_x >= self.player_rects[1].x - self.circle_width + 10:
+			if self.circle_y >= self.player_rects[1].y and self.circle_y <= self.player_rects[1].y + self.player_rects[1].height:
+				self.circle_speed_x = -self.circle_speed_x
 
-			if circle_y <= circle_width + 10.:
-				speed_y = -speed_y
-			if circle_y >= resolution_y - circle_width - 10.:
-				speed_y = -speed_y
-			
-			for player in player_rect:
-				if player.y <= 11.: 
-					player.y = 10.
-				if player.y >= resolution_y - player.height - 5.:
-					player.y = resolution_y - player.height - 5.
+		if self.circle_y <= self.circle_width + 10:
+			self.circle_speed_y = -self.circle_speed_y
+		if self.circle_y >= self.resolution_y - self.circle_width - 10:
+			self.circle_speed_y = -self.circle_speed_y
 
-			if int(self.Com.players) == 1:
-				if circle_x >= resolution_x/2:
-					if not player_rect[1].y == circle_y + circle_width:
-						if player_rect[1].y + player_rect[1].height/2 < circle_y + circle_width:
-							player_rect[1].y += ia_speed
-						if player_rect[1].y > circle_y - player_rect[1].height/2:
-							player_rect[1].y -= ia_speed
-					else:
-						player_rect[1] == circle_y + circle_width
+		if self.circle_x > self.resolution_x:
+			self.circle_x = self.resolution_x/2 - self.circle_width
+			self.circle_y = self.resolution_y/2 - self.circle_width
+			self.circle_speed_x = -self.circle_speed_x
+			self.score[1] += 1
+		if self.circle_x < 0:
+			self.circle_x = self.resolution_x/2 - self.circle_width
+			self.circle_y = self.resolution_y/2 - self.circle_width
+			self.circle_speed_x = -self.circle_speed_x
+			self.score[0] += 1
 
-			if circle_x <= player_rect[0].x + circle_width + 10:
-				if circle_y >= player_rect[0].y and circle_y <= player_rect[0].y + player_rect[0].height:
-					speed_x = -speed_x
-			if circle_x >= player_rect[1].x - circle_width + 10:
-					if circle_y >= player_rect[1].y and circle_y <= player_rect[1].y + player_rect[1].height:
-						speed_x = -speed_x
+# Players
+		for player in self.player_rects:
+			if player.y <= 11.:
+				player.y = 11
+			if player.y >= self.resolution_y - player.height - 12.:
+				player.y = self.resolution_y - player.height - 12.
 
-			if circle_x > resolution_x:
-				circle_x, circle_y = resolution_x/2 - circle_width, resolution_y/2 - circle_width
-				speed_x = -speed_x
-				scores[1] += 1
-			if circle_x < 0:
-				circle_x, circle_y = resolution_x/2 - circle_width, resolution_y/2 - circle_width
-				speed_x = -speed_x
-				scores[0] += 1
+	def __init__(self, screen, resolution_x, resolution_y):
+# Display variables
+		self.screen = screen
+		self.resolution_x = resolution_x
+		self.resolution_y = resolution_y
 
-			for bar in bar_rect:
-				pygame.draw.rect(screen, WHITE, bar)
-			for player in player_rect:
-				pygame.draw.rect(screen, WHITE, player)
-			pygame.draw.circle(screen, RED, (int(circle_x), int(circle_y)), circle_width/2)
+# Control
+		self.time_passed = None
+		self.time_sec = None
 
-			s1, s2 = font.render(str(scores[0]), 1, WHITE), font.render(str(scores[1]), 1, WHITE)
-			screen.blit(s1, (resolution_x/2 + font.size(str(scores[0]))[0], 15))
-			screen.blit(s2, (resolution_x/2 - font.size(str(scores[1]))[0] - 14, 15))
+# Draw - variables
+		self.white, self.red = (255, 255, 255), (255, 0, 0)
+		self.score = [0, 0]
+		self.font = pygame.font.Font("data/font.TTF", 30)
+	# - rects
+		self.bar_rects = [pygame.Rect(0, 0, self.resolution_x, 10),
+						  pygame.Rect(0, self.resolution_y - 11, self.resolution_x, 11),
+						  pygame.Rect(self.resolution_x/2, 0, 10, self.resolution_y)]
+		self.player_rects = [pygame.Rect(10, .4*self.resolution_y, 
+										 self.resolution_x/90, self.resolution_y/5),
+							pygame.Rect(self.resolution_x - 25, .4*self.resolution_y, 
+										 self.resolution_x/90, self.resolution_y/5)]
 
-			pygame.display.flip()
+# Circle properties
+		self.circle_width = self.resolution_x/70
+		self.circle_x = self.resolution_x/2 - self.circle_width
+		self.circle_y = self.resolution_y/2 - self.circle_width
+		self.circle_speed_x = resolution_y/2
+		self.circle_speed_y = resolution_y/2
+		self.circle_speed = resolution_y/2
+		self.ia_speed = 0
+
+# Device connector
+		self.connection = Device.Monitor()
+		self.run()
