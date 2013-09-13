@@ -28,6 +28,7 @@ class Update:
 				self.colors[self.colors.index(self.green) + 1] = self.white
 			elif keys[K_RETURN]:
 				if self.colors[0] == self.green:
+					self.flush_input()
 					Players.Update(self.screen, self.resolution_x, self.resolution_y)
 					break
 				if self.colors[1] == self.green:
@@ -37,6 +38,10 @@ class Update:
 				if self.colors[3] == self.green: exit()
 
 			self.draw()
+
+	def flush_input(self):
+		import sys
+		sys.stdin.flush()
 
 	def draw(self):
 		for index in range(0, 4):

@@ -14,6 +14,7 @@ VCC  ----> I/O 3V3
 
 import serial
 import time
+from math import sqrt
 from serial import SerialException
 import serial.tools.list_ports as list_ports
 
@@ -48,15 +49,27 @@ class Monitor(Thread):
 					except SerialException, ex:
 						print "Unable to connect the device \n%s" % str(ex)
 						self.event.set()
-		while self.isAlive:
-			if self.connection.isOpen():
-				try:
-					line = self.connection.readline()
-					self.players = int(line.split(" ")[0])
-					mv_y = int(line.split(" ")[1])
-					if self.players == 1:
-						self.mv_p1 = mv_y
+		while self.isAlive and self.connection.isOpen():
+			try:
+				line = self.connection.readline()
+				self.players, x, y, z = int(line.split(" ")[0]), int(line.split(" ")[1]), int(line.split(" ")[2]), int(line.split(" ")[3])
+				mv_y = sqrt(x**2 + y**2 + z**2)
+				if self.players == 1:
+					if mv_y <= 115 and mv_y >= 85:
+						self.mv_p1 = 0
 					else:
-						self.mv_p2 = mv_y
-				except: 
-					pass
+						if mv_y <= 100:
+							self.mv_p1 = mv_y
+						else:
+							self.mv_p1 = -mv_y/2.5
+				else:
+					if mv_y <= 115 and mv_y >= 85:
+						self.mv_p2 = 0
+					else:
+						if mv_y <= 100:
+							self.mv_p2 = -mv_y
+						else:
+							self.mv_p2 = mv_y/2.5
+
+			except Exception, ex: 
+				print "%s" % ex
