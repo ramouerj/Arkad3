@@ -1,7 +1,6 @@
 #!/usr/bin python
 
 import pygame
-import time
 import Menu
 import Device
 from pygame.locals import *
@@ -17,6 +16,7 @@ class Update:
 
 			for event in pygame.event.get():
 				if event.type == QUIT:
+					self.connection.stop()
 					break
 
 			self.screen.fill((0, 0, 0))
@@ -25,16 +25,9 @@ class Update:
 			if keys[K_ESCAPE]:
 				self.connection.stop()
 				Menu.Update(self.screen, self.resolution_x, self.resolution_y)
+				break
 
 			self.draw()
-	
-	def detect_players(self):
-			count = 0
-			for i in range(0, 10):
-				if self.connection.players == 2:
-					count += 1
-			if count >= 10: return 2
-			else: return 1
 
 	def draw(self):
 		self.move_players()
@@ -60,12 +53,27 @@ class Update:
 		self.circle_y += self.circle_speed_y * self.time_sec
 
 	def move_players(self):
-		if self.detect_players() == 1:
-			self.player_rects[0].y += self.connection.mv_p1/2
+		if self.player == 0:
+			self.player_rects[0].y += -self.connection.mv_p1/2
 			self.move_cpu()
+		elif self.player == 1:
+			self.player_rects[0].y += -self.connection.mv_p1/2
+			self.player_rects[1].y += -self.connection.mv_p2/2
 		else:
-			self.player_rects[0].y += self.connection.mv_p1/2
-			self.player_rects[1].y += self.connection.mv_p2/2
+			self.connection.stop()
+			self.ieee_mode()
+
+	def ieee_mode(self):
+		self.move_cpu()
+		self.ia_speed = self.circle_speed * self.time_sec
+		if self.circle_x <= self.resolution_x/2:
+			if not self.player_rects[0].y == self.circle_y + self.circle_width:
+				if self.player_rects[0].y + self.player_rects[0].height/2 < self.circle_y + self.circle_width:
+					self.player_rects[0].y += self.ia_speed
+				if self.player_rects[0].y > self.circle_y - self.player_rects[0].height/2:
+					self.player_rects[0].y -= self.ia_speed
+			else:
+				self.player_rects[0].y = circle_y + circle_width
 
 	def move_cpu(self):
 		self.ia_speed = self.circle_speed * self.time_sec
@@ -110,11 +118,12 @@ class Update:
 			if player.y >= self.resolution_y - player.height - 12.:
 				player.y = self.resolution_y - player.height - 12.
 
-	def __init__(self, screen, resolution_x, resolution_y):
+	def __init__(self, screen, resolution_x, resolution_y, player):
 # Display variables
 		self.screen = screen
 		self.resolution_x = resolution_x
 		self.resolution_y = resolution_y
+		self.player = player
 
 # Control
 		self.time_passed = None

@@ -52,12 +52,11 @@ class Monitor(Thread):
 			if self.connection.isOpen():
 				try:
 					line = self.connection.readline()
-					self.players, mv_y = int(line.split(" ")[0]), int(line.split(" ")[1])
+					self.players = int(line.split(" ")[0])
+					mv_y = int(line.split(" ")[1])
 					if self.players == 1:
 						self.mv_p1 = mv_y
 					else:
 						self.mv_p2 = mv_y
 				except: 
 					pass
-
-

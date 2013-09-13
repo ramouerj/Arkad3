@@ -15,7 +15,7 @@ class Pong:
 		pygame.display.set_icon(icon)
 
 		resolution = pygame.display.list_modes(32)
-		
+
 		screen = pygame.display.set_mode(resolution[0], pygame.FULLSCREEN)
 		resolution = (resolution[0][0], resolution[0][1])
 
