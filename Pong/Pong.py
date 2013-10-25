@@ -22,7 +22,4 @@ class Main:
 		pygame.display.flip()
 		pygame.mouse.set_visible(0)
 		Menu.Update(screen, resolution[0], resolution[1])
-
-if __name__ == "__main__":
-	Pong()
 	
