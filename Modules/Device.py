@@ -47,17 +47,17 @@ class Monitor(Thread):
 						self.mv_p1 = 0
 					else:
 						if mv_y <= 100:
-							self.mv_p1 = mv_y
+							self.mv_p1 = -mv_y
 						else:
-							self.mv_p1 = -mv_y/2.5
+							self.mv_p1 = mv_y/2.5
 				else:
 					if mv_y <= 115 and mv_y >= 85:
 						self.mv_p2 = 0
 					else:
 						if mv_y <= 100:
-							self.mv_p2 = -mv_y
+							self.mv_p2 = mv_y
 						else:
-							self.mv_p2 = mv_y/2.5
+							self.mv_p2 = -mv_y/2.5
 			except: pass
 		else:
 			print 'The connection is not open'
