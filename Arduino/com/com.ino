@@ -16,10 +16,14 @@ void loop()
 {
  x = accelero.getXAccel();
  y = accelero.getYAccel();
+ z = accelero.getzAccel();
  
  Serial.print(x);
  Serial.print(" ");
- Serial.println(y);
+ Serial.print(y);
+ Serial.print(" ");
+ Serial.print(z);   // saida esperada (x y z );
+ 
  
  delay(50); //make it readable
 }
